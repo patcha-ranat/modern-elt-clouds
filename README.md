@@ -1,1 +1,4 @@
-# modern-elt-azure
+# Modern ELT Pipeline with AWS
+
+*Patcharanat P.*
+

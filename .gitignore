@@ -1,9 +1,14 @@
-# environment
+# data and secrets
+data
 .env
+
+# environment
 pyenv
+__pycache__
 
 # airflow
 logs
 
 # test
 test.ipynb
+test.py

@@ -10,7 +10,8 @@ venv:
 	echo -e "${YELLOW}Please, execute 'source pyenv/Scripts/activate' before 'make install'${NC}"
 
 install:
-	pip install -r .docker/requirements.txt
+	pip install -r .airflow/requirements.txt
+	pip install -r tools/requirements.txt
 
 start:
 	docker compose -f .docker/docker-compose.yml up --build

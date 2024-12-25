@@ -5,6 +5,7 @@ data
 # environment
 pyenv
 __pycache__
+.ruff_cache
 
 # airflow
 logs
@@ -12,3 +13,4 @@ logs
 # test
 test.ipynb
 test.py
+.test

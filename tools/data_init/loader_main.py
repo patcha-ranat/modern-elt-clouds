@@ -7,22 +7,23 @@ from dotenv import load_dotenv
 from data_loader import MongoLoader
 
 
-
 # set basic logging configuration
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s %(message)s", datefmt="%m/%d/%Y %I:%M:%S %p"
+)
 
 # set connections
 load_dotenv()
 MONGO_CONN_URI = os.environ["MONGO__CONN_URI"]
 
+
 def entrypoint():
-    parser = argparse.ArgumentParser(description="Data Loader for data soucres simulation")
+    parser = argparse.ArgumentParser(
+        description="Data Loader for data soucres simulation"
+    )
 
     parser.add_argument(
-        "--load-type",
-        type=str,
-        required=True,
-        choices=["batch", "streaming"]
+        "--load-type", type=str, required=True, choices=["batch", "streaming"]
     )
 
     parser.add_argument(
@@ -30,28 +31,19 @@ def entrypoint():
         "-d",
         type=str,
         required=True,
-        choices=["mongodb", "datastore", "dynamodb", "cosmosdb", "duckdb", "kafka"]
+        choices=["mongodb", "datastore", "dynamodb", "cosmosdb", "duckdb", "kafka"],
     )
 
     parser.add_argument(
-        "--mongo-db",
-        type=str,
-        required=False,
-        help="Target Mongo Database"
+        "--mongo-db", type=str, required=False, help="Target Mongo Database"
     )
 
     parser.add_argument(
-        "--mongo-collection",
-        type=str,
-        required=False,
-        help="Target Mongo Collection"
+        "--mongo-collection", type=str, required=False, help="Target Mongo Collection"
     )
 
     parser.add_argument(
-        "--data-path",
-        type=str,
-        required=True,
-        help="relative path to json data file"
+        "--data-path", type=str, required=True, help="relative path to json data file"
     )
 
     parser.add_argument(
@@ -60,7 +52,7 @@ def entrypoint():
         type=int,
         required=False,
         default=False,
-        help="Specify a number of rows to load to destination, unless load entire data file or 100 from RandomUserAPI request"
+        help="Specify a number of rows to load to destination, unless load entire data file or 100 from RandomUserAPI request",
     )
 
     parser.add_argument(
@@ -69,13 +61,15 @@ def entrypoint():
         type=float,
         required=False,
         default=0,
-        help="interval in seconds to insert a row"
+        help="interval in seconds to insert a row",
     )
 
     args = parser.parse_args()
 
     # check arguments
-    if (args.destination == "mongodb") and (args.mongo_db is None or args.mongo_collection is None):
+    if (args.destination == "mongodb") and (
+        args.mongo_db is None or args.mongo_collection is None
+    ):
         parser.error("destination mongodb requires --mongo-db and --mongo-collection.")
 
     try:
@@ -86,7 +80,7 @@ def entrypoint():
                     data_path=args.data_path,
                     db=args.mongo_db,
                     collection=args.mongo_collection,
-                    rows=args.rows
+                    rows=args.rows,
                 )
             elif args.load_type == "streaming":
                 loader.one_insert(
@@ -94,7 +88,7 @@ def entrypoint():
                     db=args.mongo_db,
                     collection=args.mongo_collection,
                     rows=args.rows,
-                    streaming_interval=args.streaming_interval
+                    streaming_interval=args.streaming_interval,
                 )
 
         elif args.destination == "datastore":
@@ -108,13 +102,16 @@ def entrypoint():
         else:
             pass
 
-        logging.info("Process executed successfully! Data is fully loaded as specified.")
-        
+        logging.info(
+            "Process executed successfully! Data is fully loaded as specified."
+        )
+
     except KeyboardInterrupt:
         logging.warning("Process is terminated by user. Data is loaded partially")
     except Exception as e:
         logging.exception(f"Unexpected {type(e)}, {e}")
         raise
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     entrypoint()

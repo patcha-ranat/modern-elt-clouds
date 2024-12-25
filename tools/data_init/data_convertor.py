@@ -1,6 +1,7 @@
 import json
 import polars as pl
 
+
 # Data Convertor
 def convert_csv_to_json_lines(
     data_csv: list[str], relative_path: str = "finance/data"

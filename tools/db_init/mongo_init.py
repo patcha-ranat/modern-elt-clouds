@@ -7,14 +7,14 @@ from pymongo.server_api import ServerApi
 # Get Input
 load_dotenv()
 CONN_URI = os.environ["MONGO__CONN_URI"]
-DB = input("Enter MongoDB Database Name: ") # kde-db
-PREFIX = input("Enter collection prefix: ") # kde
+DB = input("Enter MongoDB Database Name: ")  # kde-db
+PREFIX = input("Enter collection prefix: ")  # kde
 
 
 # Process
 
 # Create a new client and connect to the server
-client = MongoClient(CONN_URI, server_api=ServerApi('1'))
+client = MongoClient(CONN_URI, server_api=ServerApi("1"))
 
 # Check if Database exists
 dbnames = client.list_database_names()
@@ -28,7 +28,7 @@ collections = [
     f"{PREFIX}_finance_mcc_codes",
     f"{PREFIX}_finance_train_fraud_labels",
     f"{PREFIX}_finance_transactions_data",
-    f"{PREFIX}_finance_users_data"
+    f"{PREFIX}_finance_users_data",
 ]
 
 exists_collection = db.list_collection_names()

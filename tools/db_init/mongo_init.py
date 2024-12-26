@@ -1,44 +1,63 @@
 import os
+import argparse
 
 from dotenv import load_dotenv
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
-# Get Input
-load_dotenv()
-CONN_URI = os.environ["MONGO__CONN_URI"]
-DB = input("Enter MongoDB Database Name: ")  # kde-db
-PREFIX = input("Enter collection prefix: ")  # kde
-
 
 # Process
+
+# Get Environment Variable
+load_dotenv()
+CONN_URI = os.environ["MONGO__CONN_URI"]
+
+# Get Input
+parser = argparse.ArgumentParser("Simple Database Initialization")
+parser.add_argument("--database", required=True, help="Target MongoDB Database")
+parser.add_argument("--prefix", required=False, help="Target MongoDB Collection Prefix")
+parser.add_argument("--reset", action="store_true", help="Target MongoDB Collection Prefix")
+args = parser.parse_args()
+
+DB = args.database
+PREFIX = args.prefix
+RESET_FLAG = args.reset
+
+print("Input:")
+print(f"Target Database: '{DB}'")
+print(f"Target Prefix: '{PREFIX}'")
+print(f"Reset Flag: {RESET_FLAG}")
 
 # Create a new client and connect to the server
 client = MongoClient(CONN_URI, server_api=ServerApi("1"))
 
-# Check if Database exists
-dbnames = client.list_database_names()
-if DB in dbnames:
-    db = client[DB]
-else:
-    raise Exception(f"Database: '{DB}' does not exist, Please create manually first.")
+db = client[DB]
 
-collections = [
-    f"{PREFIX}_finance_cards_data",
-    f"{PREFIX}_finance_mcc_codes",
-    f"{PREFIX}_finance_train_fraud_labels",
-    f"{PREFIX}_finance_transactions_data",
-    f"{PREFIX}_finance_users_data",
-]
-
+# Check if Reset or Create collection
 exists_collection = db.list_collection_names()
 
-for collection in collections:
-    if collection in exists_collection:
+if RESET_FLAG and len(exists_collection) > 0:
+    for collection in exists_collection:
         db.drop_collection(collection)
-        print(f"Dropped Collection '{collection}' in databse: '{DB}'")
+        print(f"Dropped Collection '{collection}' in database: '{DB}'")
+elif PREFIX:
+    collections = [
+        f"{PREFIX}-finance-random-user",
+        f"{PREFIX}-finance-cards-data",
+        f"{PREFIX}-finance-mcc-codes",
+        f"{PREFIX}-finance-train-fraud-labels",
+        f"{PREFIX}-finance-transactions-data",
+        f"{PREFIX}-finance-users-data",
+    ]
 
-    db.create_collection(collection)
-    print(f"Created Collection '{collection}' in databse: '{DB}'")
+    for collection in collections:
+        if collection in exists_collection:
+            db.drop_collection(collection)
+            print(f"Dropped Collection '{collection}' in database: '{DB}'")
+
+        db.create_collection(collection)
+        print(f"Created Collection '{collection}' in database: '{DB}'")
+else:
+    raise Exception("Required --prefix for creating collections.")
 
 print("Operation Run Successfully!")

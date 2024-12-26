@@ -4,7 +4,7 @@ import logging
 
 from dotenv import load_dotenv
 
-from data_loader import MongoLoader
+from utils.data_loader import MongoLoader
 
 
 # set basic logging configuration
@@ -43,7 +43,11 @@ def entrypoint():
     )
 
     parser.add_argument(
-        "--data-path", type=str, required=True, help="relative path to json data file"
+        "--data-path", type=str, required=False, help="relative path to json data file"
+    )
+
+    parser.add_argument(
+        "--random-api", action="store_true", required=False, help="Use data from RandomUserAPI"
     )
 
     parser.add_argument(
@@ -66,30 +70,52 @@ def entrypoint():
 
     args = parser.parse_args()
 
-    # check arguments
-    if (args.destination == "mongodb") and (
-        args.mongo_db is None or args.mongo_collection is None
-    ):
+    # Validate given arguments
+    if (args.destination == "mongodb") and (args.mongo_db is None or args.mongo_collection is None):
         parser.error("destination mongodb requires --mongo-db and --mongo-collection.")
-
+    elif (args.data_path is None) and (args.random_api is False):
+        parser.error("Required at least 1 argument, --data-path or --random-api")
+    elif (args.data_path) and (args.random_api):
+        parser.error("Required only 1 argument, --data-path or --random-api")
+    else:
+        pass
+    
+    # Process
     try:
         if args.destination == "mongodb":
             loader = MongoLoader(conn_uri=MONGO_CONN_URI)
-            if args.load_type == "batch":
-                loader.bulk_insert(
-                    data_path=args.data_path,
-                    db=args.mongo_db,
-                    collection=args.mongo_collection,
-                    rows=args.rows,
-                )
-            elif args.load_type == "streaming":
-                loader.one_insert(
-                    data_path=args.data_path,
-                    db=args.mongo_db,
-                    collection=args.mongo_collection,
-                    rows=args.rows,
-                    streaming_interval=args.streaming_interval,
-                )
+            if args.data_path:
+                if args.load_type == "batch":
+                    loader.bulk_insert(
+                        data_path=args.data_path,
+                        db=args.mongo_db,
+                        collection=args.mongo_collection,
+                        rows=args.rows,
+                    )
+                elif args.load_type == "streaming":
+                    loader.one_insert(
+                        data_path=args.data_path,
+                        db=args.mongo_db,
+                        collection=args.mongo_collection,
+                        rows=args.rows,
+                        streaming_interval=args.streaming_interval,
+                    )
+            else: # random_api
+                if args.load_type == "batch":
+                    loader.bulk_insert(
+                        random_api=True,
+                        db=args.mongo_db,
+                        collection=args.mongo_collection,
+                        rows=args.rows,
+                    )
+                elif args.load_type == "streaming":
+                    loader.one_insert(
+                        random_api=True,
+                        db=args.mongo_db,
+                        collection=args.mongo_collection,
+                        rows=args.rows,
+                        streaming_interval=args.streaming_interval,
+                    )
 
         elif args.destination == "datastore":
             pass

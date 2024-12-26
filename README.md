@@ -22,15 +22,22 @@ make install
 
 python tools/data_init/convertor_main.py
 
-python tools/db_init/mongo_init.py # kde-db # kde
+# python tools/db_init/mongo_init.py --database kde-db --reset
+python tools/db_init/mongo_init.py --database kde-db --prefix kde
 
 python ./tools/data_init/loader_main.py \
     --load-type batch \
     --destination mongodb \
     --mongo-db kde-db \
-    --mongo-collection kde_finance_cards_data \
+    --mongo-collection kde-finance-cards-data \
     --data-path data/json/cards_data.json \
     --rows 10
+```
+
+```bash
+make start
+
+# make stop
 ```
 
 *In progress . . .*

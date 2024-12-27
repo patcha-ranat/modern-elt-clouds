@@ -31,7 +31,7 @@ def entrypoint():
         "-d",
         type=str,
         required=True,
-        choices=["mongodb", "datastore", "dynamodb", "cosmosdb", "duckdb", "kafka"],
+        choices=["mongodb", "firestore", "dynamodb", "cosmosdb", "duckdb", "kafka"],
     )
 
     parser.add_argument(
@@ -117,7 +117,7 @@ def entrypoint():
                         streaming_interval=args.streaming_interval,
                     )
 
-        elif args.destination == "datastore":
+        elif args.destination == "firestore":
             pass
         elif args.destination == "dynamodb":
             pass

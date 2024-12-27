@@ -7,8 +7,9 @@ NC=\033[0m # No Color
 
 venv:
 	python -m venv pyenv
-	echo -e "${YELLOW}Please, execute 'source pyenv/Scripts/activate' before 'make install'${NC}"
-
+	echo -e "${YELLOW}Please, enable python virtual environment 'pyenv' before 'make install'${NC}"
+	echo -e "${GREY}Windows: source pyenv/Scripts/activate${NC}"
+	echo -e "${GREY}MacOS: source pyenv/bin/activate${NC}"
 install:
 	pip install -r .airflow/requirements.txt
 	pip install -r tools/requirements.txt

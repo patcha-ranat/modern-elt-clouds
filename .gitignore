@@ -10,7 +10,14 @@ __pycache__
 # airflow
 logs
 
+# terraform
+*.tfvars
+.terraform.*
+**/.terraform/providers
+terraform.tfstate*
+
 # test
 test.ipynb
 test.py
 .test
+.test.sh

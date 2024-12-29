@@ -43,7 +43,7 @@ resource "google_bigquery_dataset" "dataset_silver" {
   delete_contents_on_destroy = true
 
   labels = {
-    env        = "dev"
+    env        = var.environment
     managed_by = "terraform"
   }
 }
@@ -54,7 +54,7 @@ resource "google_bigquery_dataset" "dataset_gold" {
   delete_contents_on_destroy = true
 
   labels = {
-    env        = "dev"
+    env        = var.environment
     managed_by = "terraform"
   }
 }
@@ -62,8 +62,9 @@ resource "google_bigquery_dataset" "dataset_gold" {
 # Firestore
 
 resource "google_firestore_database" "database" {
-  project     = var.project_id
-  name        = var.firestore_db_id
-  location_id = var.location
-  type        = var.firestore_type
+  project         = var.project_id
+  name            = var.firestore_db_id
+  location_id     = var.location
+  type            = var.firestore_type
+  deletion_policy = var.firestore_deletion_policy
 }

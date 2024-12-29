@@ -1,8 +1,8 @@
 # Global
 
 variable "service_account_email" {
-	type = string
-	sensitive = true
+  type      = string
+  sensitive = true
 }
 
 variable "project_id" {
@@ -13,6 +13,11 @@ variable "project_id" {
 variable "location" {
   type      = string
   sensitive = true
+}
+
+variable "environment" {
+  type    = string
+  default = "dev"
 }
 
 # Cloud Storage
@@ -47,11 +52,16 @@ variable "bq_dataset_gold" {
 # Firestore
 
 variable "firestore_db_id" {
-	type = string
-	default = "(default)"
+  type    = string
+  default = "(default)"
 }
 
 variable "firestore_type" {
-	type = string
-	default = "FIRESTORE_NATIVE"
+  type    = string
+  default = "FIRESTORE_NATIVE"
+}
+
+variable "firestore_deletion_policy" {
+  type    = string
+  default = "DELETE"
 }

@@ -16,7 +16,7 @@ CONN_URI = os.environ["MONGO__CONN_URI"]
 parser = argparse.ArgumentParser("Simple Database Initialization")
 parser.add_argument("--database", required=True, help="Target MongoDB Database")
 parser.add_argument("--prefix", required=False, help="Target MongoDB Collection Prefix")
-parser.add_argument("--reset", action="store_true", help="Target MongoDB Collection Prefix")
+parser.add_argument("--reset", action="store_true", help="Use Reset Mode: Dropped All Collections)")
 args = parser.parse_args()
 
 DB = args.database

@@ -4,7 +4,7 @@ import logging
 
 from dotenv import load_dotenv
 
-from utils.data_loader import MongoLoader
+from utils.data_loader import MongoLoader, FirestoreLoader
 
 
 # set basic logging configuration
@@ -35,11 +35,15 @@ def entrypoint():
     )
 
     parser.add_argument(
-        "--mongo-db", type=str, required=False, help="Target Mongo Database"
+        "--project-name", type=str, required=False, help="Cloud Project Name"
     )
 
     parser.add_argument(
-        "--mongo-collection", type=str, required=False, help="Target Mongo Collection"
+        "--db-name", type=str, required=False, help="Target Mongo Database"
+    )
+
+    parser.add_argument(
+        "--collection-name", type=str, required=False, help="Target Mongo Collection"
     )
 
     parser.add_argument(
@@ -71,12 +75,14 @@ def entrypoint():
     args = parser.parse_args()
 
     # Validate given arguments
-    if (args.destination == "mongodb") and (args.mongo_db is None or args.mongo_collection is None):
-        parser.error("destination mongodb requires --mongo-db and --mongo-collection.")
+    if (args.destination == "mongodb") and (args.db_name is None or args.collection_name is None):
+        parser.error("destination mongodb requires --db-name and --collection-name")
     elif (args.data_path is None) and (args.random_api is False):
         parser.error("Required at least 1 argument, --data-path or --random-api")
     elif (args.data_path) and (args.random_api):
         parser.error("Required only 1 argument, --data-path or --random-api")
+    elif (args.destination in ["firestore", "dynamodb", "cosmosdb"]) and (args.project_name is None):
+        parser.error("Cloud Database required argument, --project-name")
     else:
         pass
     
@@ -88,44 +94,73 @@ def entrypoint():
                 if args.load_type == "batch":
                     loader.bulk_insert(
                         data_path=args.data_path,
-                        db=args.mongo_db,
-                        collection=args.mongo_collection,
+                        db=args.db_name,
+                        collection=args.collection_name,
                         rows=args.rows,
                     )
-                elif args.load_type == "streaming":
+                else: # streaming
                     loader.one_insert(
                         data_path=args.data_path,
-                        db=args.mongo_db,
-                        collection=args.mongo_collection,
+                        db=args.db_name,
+                        collection=args.collection_name,
                         rows=args.rows,
                         streaming_interval=args.streaming_interval,
                     )
             else: # random_api
                 if args.load_type == "batch":
                     loader.bulk_insert(
-                        random_api=True,
-                        db=args.mongo_db,
-                        collection=args.mongo_collection,
+                        random_api=args.random_api,
+                        db=args.db_name,
+                        collection=args.collection_name,
                         rows=args.rows,
                     )
-                elif args.load_type == "streaming":
+                else: # streaming
                     loader.one_insert(
-                        random_api=True,
-                        db=args.mongo_db,
-                        collection=args.mongo_collection,
+                        random_api=args.random_api,
+                        db=args.db_name,
+                        collection=args.collection_name,
                         rows=args.rows,
                         streaming_interval=args.streaming_interval,
                     )
 
         elif args.destination == "firestore":
-            pass
+            loader = FirestoreLoader(project=args.project_name, database=args.db_name)
+            if args.data_path:
+                if args.load_type == "batch":
+                    loader.bulk_insert(
+                        collection=args.collection_name,
+                        data_path=args.data_path,
+                        rows=args.rows,
+                    )
+                else: # streaming
+                    loader.one_insert(
+                        collection=args.collection_name,
+                        data_path=args.data_path,
+                        rows=args.rows,
+                        streaming_interval=args.streaming_interval
+                    )
+            else: # random_api
+                if args.load_type == "batch":
+                    loader.bulk_insert(
+                        collection=args.collection_name,
+                        random_api=args.random_api,
+                        rows=args.rows,
+                    )
+                else: # streaming
+                    loader.one_insert(
+                        collection=args.collection_name,
+                        random_api=args.random_api,
+                        rows=args.rows,
+                        streaming_interval=args.streaming_interval
+                    )
+
         elif args.destination == "dynamodb":
             pass
         elif args.destination == "cosmosdb":
             pass
         elif args.destination == "duckdb":
             pass
-        else:
+        elif args.destination == "kafka":
             pass
 
         logging.info(

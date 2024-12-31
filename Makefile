@@ -5,6 +5,12 @@ YELLOW=\033[0;33m
 GREY=\033[0;30m
 NC=\033[0m # No Color
 
+# Export .env file as environment variables
+ifneq (,$(wildcard ./.env))
+    include .env
+    export
+endif
+
 venv:
 	python -m venv pyenv
 	echo -e "${YELLOW}Please, enable python virtual environment 'pyenv' before 'make install'${NC}"
@@ -19,3 +25,6 @@ start:
 
 stop:
 	docker compose -f .docker/docker-compose.yml down -v
+
+test:
+	echo "not implemented yet"

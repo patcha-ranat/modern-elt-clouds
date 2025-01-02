@@ -24,17 +24,17 @@ variable "environment" {
 
 variable "bucket_landing_name" {
   type    = string
-  default = "kde_ecomm_landing"
+  default = "kde_finance_landing"
 }
 
 variable "bucket_staging_name" {
   type    = string
-  default = "kde_ecomm_staging"
+  default = "kde_finance_staging"
 }
 
 variable "bucket_curated_name" {
   type    = string
-  default = "kde_ecomm_curated"
+  default = "kde_finance_curated"
 }
 
 # BigQuery

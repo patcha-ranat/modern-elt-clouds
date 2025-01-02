@@ -1,6 +1,7 @@
 # data and secrets
 data
 .env
+connections.json
 
 # environment
 pyenv
@@ -21,3 +22,6 @@ test.ipynb
 test.py
 .test
 .test.sh
+
+# official template / charts / example
+extraction_framework

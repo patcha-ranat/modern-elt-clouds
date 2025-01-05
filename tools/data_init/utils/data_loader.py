@@ -89,6 +89,9 @@ class MongoLoader(BaseLoader):
 
         # insert documents
         try:
+            logging.info(
+                f"Inserting {len(documents)} records to {db}.{collection}"
+            )
             result = mongo_collection.insert_many(documents)
             logging.info(
                 f"Inserted {len(result.inserted_ids)} records to {db}.{collection}"

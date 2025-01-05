@@ -57,6 +57,8 @@ elif PREFIX:
 
         db.create_collection(collection)
         print(f"Created Collection '{collection}' in database: '{DB}'")
+elif len(exists_collection) == 0:
+    print(f"Database: '{DB}' has no collection")
 else:
     raise Exception("Required --prefix for creating collections.")
 

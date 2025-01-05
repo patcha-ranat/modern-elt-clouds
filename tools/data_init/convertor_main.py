@@ -28,7 +28,7 @@ data_json = ["mcc_codes.json", "train_fraud_labels.json"]
 def process():
     # check data dir
     if "data" not in os.listdir(PROJECT_RELATIVE_PATH):
-        print("Please, run './tools/data_init/kaggle_wrapper.sh' first")
+        print("Please, run './tools/data_init/scripts/kaggle_wrapper.sh' first")
         print("Execution Interrupted.")
 
     # check data/json dir

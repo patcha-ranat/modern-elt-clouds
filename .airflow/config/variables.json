@@ -3,5 +3,6 @@
         "landing": "kde_finance_landing",
         "staging": "kde_finance_staging",
         "curated": "kde_finance_curated"
-    }
+    },
+    "mongodb_database": "kde-db"
 }

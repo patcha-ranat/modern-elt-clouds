@@ -40,4 +40,9 @@ make start
 # make stop
 ```
 
+References:
+- Firestore Python API
+    - [Add and update data](https://cloud.google.com/firestore/docs/manage-data/add-data#pythonasync_6)
+    - [Delete documents and fields](https://cloud.google.com/firestore/docs/manage-data/delete-data)
+
 *In progress . . .*

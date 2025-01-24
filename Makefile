@@ -1,4 +1,4 @@
-.SILENT: venv install
+.SILENT: venv install export-env start stop test
 
 GREEN=\033[0;32m
 YELLOW=\033[0;33m
@@ -16,9 +16,13 @@ venv:
 	echo -e "${YELLOW}Please, enable python virtual environment 'pyenv' before 'make install'${NC}"
 	echo -e "${GREY}Windows: source pyenv/Scripts/activate${NC}"
 	echo -e "${GREY}MacOS: source pyenv/bin/activate${NC}"
+
 install:
 	pip install -r .airflow/requirements.txt
 	pip install -r tools/requirements.txt
+
+export-env:
+	echo -e "${GREEN}Exported evnironment variables from '.env' file.${NC}, Please open a new terminal to use exported env variables."
 
 start:
 	docker compose -f .docker/docker-compose.yml up --build

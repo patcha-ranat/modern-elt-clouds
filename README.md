@@ -44,5 +44,8 @@ References:
 - Firestore Python API
     - [Add and update data](https://cloud.google.com/firestore/docs/manage-data/add-data#pythonasync_6)
     - [Delete documents and fields](https://cloud.google.com/firestore/docs/manage-data/delete-data)
-
+- Amazon Authentication
+    - [Authenticating using IAM user credentials for the AWS CLI](https://docs.aws.amazon.com/cli/v1/userguide/cli-authentication-user.html)
+    - [Root user best practices for your AWS account](https://docs.aws.amazon.com/IAM/latest/UserGuide/root-user-best-practices.html)
+    
 *In progress . . .*

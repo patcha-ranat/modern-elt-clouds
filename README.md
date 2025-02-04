@@ -47,5 +47,6 @@ References:
 - Amazon Authentication
     - [Authenticating using IAM user credentials for the AWS CLI](https://docs.aws.amazon.com/cli/v1/userguide/cli-authentication-user.html)
     - [Root user best practices for your AWS account](https://docs.aws.amazon.com/IAM/latest/UserGuide/root-user-best-practices.html)
-    
+- Kafka Docker Compose
+    - [Conduktor Kafka Docker Compose Template - GitHub](https://github.com/conduktor/kafka-stack-docker-compose)
 *In progress . . .*

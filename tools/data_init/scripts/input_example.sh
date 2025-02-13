@@ -10,16 +10,16 @@ python tools/db_init/mongo_init.py --database kde-db --prefix kde
 python ./tools/data_init/loader_main.py \
     --load-type batch \
     --destination mongodb \
-    --db-name kde-db \
-    --collection-name kde-finance-cards-data \
+    --database kde-db \
+    --collection kde-finance-cards-data \
     --data-path data/json/cards_data.json \
     --rows 10
 
 python ./tools/data_init/loader_main.py \
     --load-type streaming \
     --destination mongodb \
-    --db-name kde-db \
-    --collection-name kde-finance-cards-data \
+    --database kde-db \
+    --collection kde-finance-cards-data \
     --data-path data/json/cards_data.json \
     --rows 20 \
     --streaming-interval 0.5
@@ -28,18 +28,18 @@ python ./tools/data_init/loader_main.py \
 python ./tools/data_init/loader_main.py \
     --load-type batch \
     --destination mongodb \
-    --db-name kde-db \
-    --collection-name kde-finance-random-user \
+    --database kde-db \
+    --collection kde-finance-random-user \
     --random-api \
     --rows 20
 
 python ./tools/data_init/loader_main.py \
     --load-type streaming \
     --destination mongodb \
-    --db-name kde-db \
-    --collection-name kde-finance-random-user \
+    --database kde-db \
+    --collection kde-finance-random-user \
     --random-api \
-    --rows 30 \
+    --rows 10 \
     --streaming-interval 0.5
 
 # Firestore Example
@@ -52,8 +52,8 @@ python ./tools/data_init/loader_main.py \
     --load-type batch \
     --destination firestore \
     --project-name ${GCP__PROJECT} \
-    --db-name '(default)' \
-    --collection-name kde-finance-cards-data \
+    --database '(default)' \
+    --collection kde-finance-cards-data \
     --data-path data/json/cards_data.json \
     --rows 20
 
@@ -61,8 +61,8 @@ python ./tools/data_init/loader_main.py \
     --load-type streaming \
     --destination firestore \
     --project-name ${GCP__PROJECT} \
-    --db-name '(default)' \
-    --collection-name kde-finance-cards-data \
+    --database '(default)' \
+    --collection kde-finance-cards-data \
     --data-path data/json/cards_data.json \
     --rows 10 \
     --streaming-interval 0.5
@@ -72,8 +72,8 @@ python ./tools/data_init/loader_main.py \
     --load-type batch \
     --destination firestore \
     --project-name ${GCP__PROJECT} \
-    --db-name '(default)' \
-    --collection-name kde-finance-random-user \
+    --database '(default)' \
+    --collection kde-finance-random-user \
     --random-api \
     --rows 20
 
@@ -81,8 +81,32 @@ python ./tools/data_init/loader_main.py \
     --load-type streaming \
     --destination firestore \
     --project-name ${GCP__PROJECT} \
-    --db-name '(default)' \
-    --collection-name kde-finance-random-user \
+    --database '(default)' \
+    --collection kde-finance-random-user \
     --random-api \
-    --rows 20 \
+    --rows 10 \
+    --streaming-interval 0.5
+
+# Kafka Example
+
+make start
+
+# data_path
+python ./tools/data_init/loader_main.py \
+    --load-type streaming \
+    --destination kafka \
+    --bootstrap-server localhost:9092 \
+    --topic cards_data \
+    --data-path data/json/cards_data.json \
+    --rows 10 \
+    --streaming-interval 0.5
+
+# random_api
+python ./tools/data_init/loader_main.py \
+    --load-type streaming \
+    --destination kafka \
+    --bootstrap-server localhost:9092 \
+    --topic random-api \
+    --random-api \
+    --rows 10 \
     --streaming-interval 0.5

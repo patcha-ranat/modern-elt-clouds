@@ -48,5 +48,11 @@ References:
     - [Authenticating using IAM user credentials for the AWS CLI](https://docs.aws.amazon.com/cli/v1/userguide/cli-authentication-user.html)
     - [Root user best practices for your AWS account](https://docs.aws.amazon.com/IAM/latest/UserGuide/root-user-best-practices.html)
 - Kafka Docker Compose
-    - [Conduktor Kafka Docker Compose Template - GitHub](https://github.com/conduktor/kafka-stack-docker-compose)
+    - [Conduktor Kafka Docker Compose Template (Full Stack) - GitHub](https://github.com/conduktor/kafka-stack-docker-compose/blob/master/full-stack.yml)
+    - [Redpanda Console Docker Compose Template - GitHub](https://github.com/redpanda-data/console/blob/master/docs/local/docker-compose.yaml)
+- Kafka Confluent (Python API Client)
+    - [confluent-kafka-python - GitHub](https://github.com/confluentinc/confluent-kafka-python/tree/master)
+    - [Example of JSON producer - GitHub](https://github.com/confluentinc/confluent-kafka-python/blob/master/examples/json_producer.py)
+    - [confluent-kafka api docs](https://docs.confluent.io/platform/current/clients/confluent-kafka-python/html/index.html)
+
 *In progress . . .*

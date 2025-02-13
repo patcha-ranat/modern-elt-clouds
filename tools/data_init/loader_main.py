@@ -4,7 +4,7 @@ import logging
 
 from dotenv import load_dotenv
 
-from utils.data_loader import MongoLoader, FirestoreLoader
+from utils.data_loader import MongoLoader, FirestoreLoader, KafkaLoader
 
 
 # set basic logging configuration
@@ -39,11 +39,23 @@ def entrypoint():
     )
 
     parser.add_argument(
-        "--db-name", type=str, required=False, help="Target Mongo Database"
+        "--database", type=str, required=False, help="Target Mongo Database"
     )
 
     parser.add_argument(
-        "--collection-name", type=str, required=False, help="Target Mongo Collection"
+        "--collection", type=str, required=False, help="Target Mongo Collection"
+    )
+
+    parser.add_argument(
+        "--bootstrap-server", type=str, required=False, help="e.g. 'localhost:9092'"
+    )
+
+    parser.add_argument(
+        "--topic", type=str, required=False, help="e.g. 'topic_name' or 'topic-name' will load to 'topic-name' topic"
+    )
+
+    parser.add_argument(
+        "--partition", type=str, required=False, help="partition column name"
     )
 
     parser.add_argument(
@@ -56,16 +68,13 @@ def entrypoint():
 
     parser.add_argument(
         "--rows",
-        "-r",
         type=int,
         required=False,
-        default=False,
         help="Specify a number of rows to load to destination, unless load entire data file or 100 from RandomUserAPI request",
     )
 
     parser.add_argument(
         "--streaming-interval",
-        "-st",
         type=float,
         required=False,
         default=0,
@@ -75,84 +84,57 @@ def entrypoint():
     args = parser.parse_args()
 
     # Validate given arguments
-    if (args.destination == "mongodb") and (args.db_name is None or args.collection_name is None):
-        parser.error("destination mongodb requires --db-name and --collection-name")
+    if (args.destination == "mongodb") and (args.database is None or args.collection is None):
+        parser.error("destination mongodb requires --database and --collection")
     elif (args.data_path is None) and (args.random_api is False):
         parser.error("Required at least 1 argument, --data-path or --random-api")
     elif (args.data_path) and (args.random_api):
-        parser.error("Required only 1 argument, --data-path or --random-api")
+        parser.error("Only 1 argument is acceptable, --data-path or --random-api")
     elif (args.destination in ["firestore", "dynamodb", "cosmosdb"]) and (args.project_name is None):
         parser.error("Cloud Database required argument, --project-name")
+    elif (args.load_type == "batch") and (args.streaming_interval):
+        parser.error("--load-type do not accept --streaming-interval argument")
+    elif (args.destination == "kafka") and ((args.bootstrap_server is None) or (args.topic is None)):
+        parser.error("--destination kafka required both --bootstrap-server and --topic arguments")
+    elif (args.destination == "kafka") and (args.load_type == "batch"):
+        parser.error("--destination kafka do not accept --load-type batch mode")
+    elif (args.partition is not None):
+        # logging.warning("--partition is given, please make partition column is integer type")
+        logging.warning("--partition has not supported yet")
     else:
         pass
     
     # Process
     try:
         if args.destination == "mongodb":
-            loader = MongoLoader(conn_uri=MONGO_CONN_URI)
-            if args.data_path:
-                if args.load_type == "batch":
-                    loader.bulk_insert(
-                        data_path=args.data_path,
-                        db=args.db_name,
-                        collection=args.collection_name,
-                        rows=args.rows,
-                    )
-                else: # streaming
-                    loader.one_insert(
-                        data_path=args.data_path,
-                        db=args.db_name,
-                        collection=args.collection_name,
-                        rows=args.rows,
-                        streaming_interval=args.streaming_interval,
-                    )
-            else: # random_api
-                if args.load_type == "batch":
-                    loader.bulk_insert(
-                        random_api=args.random_api,
-                        db=args.db_name,
-                        collection=args.collection_name,
-                        rows=args.rows,
-                    )
-                else: # streaming
-                    loader.one_insert(
-                        random_api=args.random_api,
-                        db=args.db_name,
-                        collection=args.collection_name,
-                        rows=args.rows,
-                        streaming_interval=args.streaming_interval,
-                    )
+            loader = MongoLoader(
+                conn_uri=MONGO_CONN_URI, 
+                database=args.database,
+                collection=args.collection,
+                data_path=args.data_path,
+                random_api=args.random_api,
+                rows=args.rows,
+                streaming_interval=args.streaming_interval
+            )
+            if args.load_type == "batch":
+                loader.bulk_insert()
+            else: # streaming
+                loader.one_insert()
 
         elif args.destination == "firestore":
-            loader = FirestoreLoader(project=args.project_name, database=args.db_name)
-            if args.data_path:
-                if args.load_type == "batch":
-                    loader.bulk_insert(
-                        collection=args.collection_name,
-                        data_path=args.data_path,
-                        rows=args.rows,
-                    )
-                else: # streaming
-                    loader.one_insert(
-                        collection=args.collection_name,
-                        data_path=args.data_path,
-                        rows=args.rows,
-                        streaming_interval=args.streaming_interval
-                    )
-            else: # random_api
-                if args.load_type == "batch":
-                    loader.bulk_insert(
-                        collection=args.collection_name,
-                        random_api=args.random_api,
-                        rows=args.rows,
-                    )
-                else: # streaming
-                    loader.one_insert(
-                        collection=args.collection_name,
-                        random_api=args.random_api,
-                        rows=args.rows,
-                        streaming_interval=args.streaming_interval
-                    )
+            loader = FirestoreLoader(
+                project=args.project_name, 
+                database=args.database,
+                collection=args.collection,
+                data_path=args.data_path,
+                random_api=args.random_api,
+                rows=args.rows,
+                streaming_interval=args.streaming_interval
+            )
+            if args.load_type == "batch":
+                loader.bulk_insert()
+            else: # streaming
+                loader.one_insert()
 
         elif args.destination == "dynamodb":
             pass
@@ -161,11 +143,19 @@ def entrypoint():
         elif args.destination == "duckdb":
             pass
         elif args.destination == "kafka":
-            pass
+            loader = KafkaLoader(
+                bootstrap_server=args.bootstrap_server,
+                topic=args.topic,
+                partition=args.partition,
+                data_path=args.data_path,
+                random_api=args.random_api,
+                rows=args.rows,
+                streaming_interval=args.streaming_interval
+            )
+            # manipulate streaming
+            loader.send()
 
-        logging.info(
-            "Process executed successfully! Data is fully loaded as specified."
-        )
+        logging.info("Process executed successfully! Data is fully loaded as specified.")
 
     except KeyboardInterrupt:
         logging.warning("Process is terminated by user. Data is loaded partially")

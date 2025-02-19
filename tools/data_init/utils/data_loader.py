@@ -8,6 +8,8 @@ import uuid
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from google.cloud import firestore
+import boto3
+import boto3.session
 from confluent_kafka import Producer
 from confluent_kafka.serialization import StringSerializer
 
@@ -133,7 +135,7 @@ class MongoLoader(BaseLoader):
                     current_doc_num = i + 1 
                     mongo_collection.insert_one(document)
                     
-                    logging.info(f"Inserted {current_doc_num} to {self.database}.{self.collection}")
+                    logging.info(f"Inserted record {current_doc_num} to {self.database}.{self.collection}")
                     
                     time.sleep(self.streaming_interval)
                 
@@ -248,6 +250,107 @@ class FirestoreLoader(BaseLoader):
 
             finally:
                 logging.info("Operation has finished")
+
+
+class DynamoDBLoader(BaseLoader):
+    def __init__(
+        self,
+        profile: str,
+        table: str,
+        data_path: str = None,
+        random_api: bool = False,
+        rows: int | bool = False,
+        streaming_interval: float = 0,
+    ):
+        super().__init__()
+        self.profile = profile
+        self.table = table
+        self.data_path = data_path
+        self.random_api = random_api
+        self.rows = rows
+        self.streaming_interval = streaming_interval
+        
+        session = boto3.session.Session(profile_name=self.profile)
+        dynamodb = session.resource("dynamodb")
+        self.table_client = dynamodb.Table(self.table)
+
+    def batch_insert(self):
+        # read data, considering rows
+        if self.data_path:
+            try:
+                with self.table_client.batch_writer() as batch:
+                    with open(self.data_path, "r") as f:
+                        for document, row_num  in self.read_json_lines_file(file=f, rows=self.rows):
+                            batch.put_item(Item=document)
+                        f.close()
+
+                logging.info(f"Inserted {row_num} records to '{self.table}' table with profile '{self.profile}'")
+
+            except Exception as e:
+                raise e
+            
+            finally:
+                logging.info("Operation has finished")
+
+        else: # random_api
+            try:
+                if not self.rows:
+                    self.rows = 100
+                generator = DataGeneratorAPI(results=self.rows, format="json")
+                documents: list[dict[str, Any]] = generator.get_data()
+                
+                with self.table_client.batch_writer() as batch:
+                    for document in documents:
+                        batch.put_item(Item=document)
+                row_num = self.rows
+
+                logging.info(f"Inserted {row_num} records to '{self.table}' table with profile '{self.profile}'")
+
+            except Exception as e:
+                raise e
+
+            finally:
+                logging.info("Operation has finished")
+
+    def one_insert(self):
+        # read data & insert documents, considering rows and streaming_invertal
+        if self.data_path:
+            try: 
+                with open(self.data_path, "r") as f:
+                    for document, row_num in self.read_json_lines_file(file=f, rows=self.rows, streaming_interval=self.streaming_interval, print_log=True):
+                        self.table_client.put_item(Item=document)
+                    f.close()
+
+                    logging.info(f"Inserted {row_num} records to '{self.table}' table with profile '{self.profile}'")
+
+            except Exception as e:
+                raise e
+
+            finally:
+                logging.info("Operation has finished")
+        
+        else: # random_api
+            if not self.rows:
+                self.rows = 100
+            generator = DataGeneratorAPI(results=self.rows, format="json")
+            documents: list[dict[str, Any]] = generator.get_data()
+            try:
+                for i, document in enumerate(documents):
+                    row_num = i + 1 
+                    self.table_client.put_item(Item=document)
+                    
+                    logging.info(f"Inserting record {row_num} to '{self.table}' table with profile '{self.profile}'")
+                    
+                    time.sleep(self.streaming_interval)
+                
+                logging.info(f"Inserted {row_num} records to '{self.table}' table with profile '{self.profile}'")
+
+            except Exception as e:
+                raise e
+
+            finally:
+                logging.info("Operation has finished")
+
 
 class KafkaLoader(BaseLoader):
     def __init__(

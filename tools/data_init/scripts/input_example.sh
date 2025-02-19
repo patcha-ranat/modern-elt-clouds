@@ -87,6 +87,50 @@ python ./tools/data_init/loader_main.py \
     --rows 10 \
     --streaming-interval 0.5
 
+# DynamoDB Example
+
+# aws configure sso
+# aws sso login --profile <profle-name>
+
+# cd .terraform/aws | terraform destroy -auto-approve
+cd .terraform/aws | terraform plan | terraform apply -auto-approve
+
+# data path
+python ./tools/data_init/loader_main.py \
+    --load-type batch \
+    --destination dynamodb \
+    --profile kde-local-sso-cli \
+    --table cards-data \
+    --data-path data/json/cards_data.json \
+    --rows 5
+
+python ./tools/data_init/loader_main.py \
+    --load-type streaming \
+    --destination dynamodb \
+    --profile kde-local-sso-cli \
+    --table cards-data \
+    --data-path data/json/cards_data.json \
+    --rows 10 \
+    --streaming-interval 0.5
+
+# random_api
+# python ./tools/data_init/loader_main.py \
+#     --load-type batch \
+#     --destination dynamodb \
+#     --profile kde-local-sso-cli \
+#     --table cards-data \
+#     --random-api \
+#     --rows 15
+
+# python ./tools/data_init/loader_main.py \
+#     --load-type streaming \
+#     --destination dynamodb \
+#     --profile kde-local-sso-cli \
+#     --table cards-data \
+#     --random-api \
+#     --rows 20 \
+#     --streaming-interval 0.5
+
 # Kafka Example
 
 make start

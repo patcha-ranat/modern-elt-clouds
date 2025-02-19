@@ -8,7 +8,9 @@ terraform {
 }
 
 # Configure the AWS Provider
-provider "aws" {}
+provider "aws" {
+  profile = var.profile
+}
 
 # S3 Bucket
 

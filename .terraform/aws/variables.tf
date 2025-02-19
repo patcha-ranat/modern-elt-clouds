@@ -1,5 +1,11 @@
 # Global
 
+variable "profile" {
+  type        = string
+  description = "sso profile, check ~/.aws/config"
+  sensitive   = true
+}
+
 variable "env" {
   type        = string
   description = "resouce environment"
@@ -38,7 +44,7 @@ variable "dynamodb_billing_mode" {
 }
 
 variable "dynamodb_table_schema_card_data" {
-  description = "DynamoDB Table schema for table: card_data"
+  description = "DynamoDB Table schema for table: card-data / type s=string, n=number"
   type = object({
     table_name         = string
     partition_key      = string

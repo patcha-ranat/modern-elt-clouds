@@ -1,12 +1,18 @@
-# convert data to json lines
-python tools/data_init/convertor_main.py
+# Load Data from Local / Random API to Different Target
+
 
 # MongoDB Example
 
+# Require Manual creating database on MongoDB Atlas via WebUI
+
+# Initiate MongoDB Database and Collections
 python tools/db_init/mongo_init.py --database kde-db --prefix kde
+
+# Clean Colelctions
 # python tools/db_init/mongo_init.py --database kde-db --reset
 
-# data_path
+# Load with Local Data (data_path)
+
 python ./tools/data_init/loader_main.py \
     --load-type batch \
     --destination mongodb \
@@ -24,7 +30,8 @@ python ./tools/data_init/loader_main.py \
     --rows 20 \
     --streaming-interval 0.5
 
-# random_api
+# Load Data from random_api
+
 python ./tools/data_init/loader_main.py \
     --load-type batch \
     --destination mongodb \
@@ -41,13 +48,20 @@ python ./tools/data_init/loader_main.py \
     --random-api \
     --rows 10 \
     --streaming-interval 0.5
+
 
 # Firestore Example
 
-# python tools/db_init/firestore_init.py --database '(default)' --prefix kde --reset
+# Require Terraform to create Database on GCP first
+
+# Firestore don't require to initiate Collections
+
+# Clean Collections
 python tools/db_init/firestore_init.py --database '(default)' --reset
+# python tools/db_init/firestore_init.py --database '(default)' --prefix kde --reset
 
-# data path
+# Load with Local Data (data_path)
+
 python ./tools/data_init/loader_main.py \
     --load-type batch \
     --destination firestore \
@@ -67,7 +81,8 @@ python ./tools/data_init/loader_main.py \
     --rows 10 \
     --streaming-interval 0.5
 
-# random_api
+# Load Data from random_api
+
 python ./tools/data_init/loader_main.py \
     --load-type batch \
     --destination firestore \
@@ -86,16 +101,16 @@ python ./tools/data_init/loader_main.py \
     --random-api \
     --rows 10 \
     --streaming-interval 0.5
+
 
 # DynamoDB Example
 
-# aws configure sso
-# aws sso login --profile <profle-name>
+# Require Terraform to create DynamoDB resources on AWS first
 
-# cd .terraform/aws | terraform destroy -auto-approve
-cd .terraform/aws | terraform plan | terraform apply -auto-approve
+# Resetting can be done by destroying DynamoDB resources via Terraform
 
-# data path
+# Load with Local Data (data_path)
+
 python ./tools/data_init/loader_main.py \
     --load-type batch \
     --destination dynamodb \
@@ -113,7 +128,8 @@ python ./tools/data_init/loader_main.py \
     --rows 10 \
     --streaming-interval 0.5
 
-# random_api
+# Load Data from random_api
+
 # python ./tools/data_init/loader_main.py \
 #     --load-type batch \
 #     --destination dynamodb \
@@ -131,11 +147,15 @@ python ./tools/data_init/loader_main.py \
 #     --rows 20 \
 #     --streaming-interval 0.5
 
+
 # Kafka Example
 
-make start
+# Require to start Kafka containers
 
-# data_path
+# Resetting can be done by deleting Kafka Containers
+
+# Load with Local Data (data_path)
+
 python ./tools/data_init/loader_main.py \
     --load-type streaming \
     --destination kafka \
@@ -145,7 +165,8 @@ python ./tools/data_init/loader_main.py \
     --rows 10 \
     --streaming-interval 0.5
 
-# random_api
+# Load Data from random_api
+
 python ./tools/data_init/loader_main.py \
     --load-type streaming \
     --destination kafka \

@@ -4,7 +4,7 @@ Convert CSV and JSON to MongoDB Collection format
 
 import os
 import shutil
-from tools.data_init.utils.data_convertor import (
+from tools.data_init.utils.data_converter import (
     convert_csv_to_json_lines,
     convert_json_to_json_lines,
 )
@@ -55,7 +55,7 @@ def process():
         convert_json_to_json_lines(
             data_json=data_json, relative_path=PROJECT_RELATIVE_DATA_PATH
         )
-        print("'data/json' folder is refreshed by data convertor")
+        print("'data/json' folder is refreshed by data converter")
         print("Executed Successfully!")
 
 

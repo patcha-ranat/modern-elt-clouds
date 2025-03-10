@@ -8,47 +8,47 @@ python tools/db_init/mongo_init.py --database kde-db --prefix kde
 python ./tools/data_init/loader_main.py \
     --load-type batch \
     --destination mongodb \
-    --db-name kde-db \
-    --collection-name kde-finance-random-user \
+    --database kde-db \
+    --collection kde-finance-random-user \
     --random-api \
-    --rows 1000
+    --rows 100
 
 python ./tools/data_init/loader_main.py \
     --load-type batch \
     --destination mongodb \
-    --db-name kde-db \
-    --collection-name kde-finance-cards-data \
+    --database kde-db \
+    --collection kde-finance-cards-data \
     --data-path data/json/cards_data.json \
-    --rows 1000
+    --rows 100
 
 python ./tools/data_init/loader_main.py \
     --load-type batch \
     --destination mongodb \
-    --db-name kde-db \
-    --collection-name kde-finance-mcc-codes \
+    --database kde-db \
+    --collection kde-finance-mcc-codes \
     --data-path data/json/mcc_codes.json \
-    --rows 1000
+    --rows 100
 
 python ./tools/data_init/loader_main.py \
     --load-type batch \
     --destination mongodb \
-    --db-name kde-db \
-    --collection-name kde-finance-train-fraud-labels \
+    --database kde-db \
+    --collection kde-finance-train-fraud-labels \
     --data-path data/json/train_fraud_labels.json \
-    --rows 1000
+    --rows 100
 
 python ./tools/data_init/loader_main.py \
     --load-type batch \
     --destination mongodb \
-    --db-name kde-db \
-    --collection-name kde-finance-transactions-data \
+    --database kde-db \
+    --collection kde-finance-transactions-data \
     --data-path data/json/transactions_data.json \
-    --rows 1000
+    --rows 100
 
 python ./tools/data_init/loader_main.py \
     --load-type batch \
     --destination mongodb \
-    --db-name kde-db \
-    --collection-name kde-finance-users-data \
+    --database kde-db \
+    --collection kde-finance-users-data \
     --data-path data/json/users_data.json \
-    --rows 1000
+    --rows 100

@@ -4,5 +4,10 @@
         "staging": "kde_finance_staging",
         "curated": "kde_finance_curated"
     },
+    "s3": {
+        "landing": "kde-landing",
+        "staging": "kde-staging",
+        "persist": "kde-persist"
+    },
     "mongodb_database": "kde-db"
 }

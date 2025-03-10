@@ -5,3 +5,6 @@ boto3==1.35.88
 
 confluent-kafka==2.8.0
 # kafka-python==2.0.2
+
+pandas==2.2.3
+guppy3==3.1.5

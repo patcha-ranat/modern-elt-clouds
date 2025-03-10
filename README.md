@@ -2,7 +2,17 @@
 
 *Patcharanat P.*
 
-## Prerequisites
+## Table of Contents
+
+1. [Pre-requisites](#1-prerequisites)
+2. [Setting up Environment](#2-setting-up-environment)
+    - 2.1 [Initiating Docker Containers](#21-initiating-docker-containers)
+    - 2.2 [Cloud Authentication](#22-cloud-authentication)
+    - 2.3 [Initiating Cloud Resources](#23-initiating-cloud-resources)
+    - 2.4 [Initiating Data](#24-initiating-data)
+
+## 1. Pre-requisites
+
 - Program Installed
     - Python
     - Docker
@@ -27,9 +37,9 @@
     location              = "<region>"
     ```
 
-## Setting up Environment
+## 2. Setting up Environment
 
-### Initiating Docker Containers
+### 2.1 Initiating Docker Containers
 
 ```bash
 make start
@@ -54,7 +64,7 @@ References
     - [Conduktor Kafka Docker Compose Template (Full Stack) - GitHub](https://github.com/conduktor/kafka-stack-docker-compose/blob/master/full-stack.yml)
     - [Redpanda Console Docker Compose Template - GitHub](https://github.com/redpanda-data/console/blob/master/docs/local/docker-compose.yaml)
 
-### Cloud Authentication
+### 2.2 Cloud Authentication
 
 ```bash
 # AWS
@@ -83,7 +93,7 @@ References
 - GCP Authentication Detail from Another Project
     - [GCP ADC for Terraform - Ecommerce-Invoice-End-to-end - GitHub](https://github.com/patcha-ranat/Ecommerce-Invoice-End-to-end?tab=readme-ov-file#222-gcp-adc-for-terraform)
 
-### Initiating Cloud Resources
+### 2.3 Initiating Cloud Resources
 
 ```bash
 # GCP
@@ -106,7 +116,10 @@ References
     - [Terraform DynamoDB resource - Terraform ](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/dynamodb_table)
     - [Using Terraform with AWS SSO accounts - AWS](https://repost.aws/questions/QUgd8bMJKIRRqgSof0ksVKbA/using-terraform-with-aws-sso-accounts)
     - [IAM vs IAM Identity Center - Reddit](https://www.reddit.com/r/aws/comments/14j4wmn/iam_or_iam_identity_center/)
-### Initiating Data
+
+### 2.4 Initiating Data
+
+In this project, we will load raw data from Kaggle with a custom script: [kaggle_wrapper.sh](./tools/data_init/scripts/kaggle_wrapper.sh). Then, we will convert data from csv to json lines with python script: [converter_main.py](./tools/data_init/converter_main.py). Then we will use this converted data to load to multiple sources to mock up data sources for ELT process, such as MongoDB, Firestore, DynamoDB for NoSQL Database, and Kafka for streaming.
 
 ```bash
 make venv
@@ -115,12 +128,12 @@ source pyenv/Scripts/activate
 
 make install
 
-./tools/data_init/kaggle_wrapper.sh
+./tools/data_init/scripts/kaggle_wrapper.sh
 
 python tools/data_init/converter_main.py
 ```
 
-Then please refer to [input_example.sh](./tools/data_init/scripts/input_example.sh) for initiating loading data to different targets
+Then please refer to [input_example.sh](./tools/data_init/scripts/input_example.sh) for initiating loading data to different targets.
 
 References
 - Firestore Python API
@@ -135,5 +148,9 @@ References
     - [confluent-kafka-python - GitHub](https://github.com/confluentinc/confluent-kafka-python/tree/master)
     - [Example of JSON producer - GitHub](https://github.com/confluentinc/confluent-kafka-python/blob/master/examples/json_producer.py)
     - [confluent-kafka api docs - docs.io](https://docs.confluent.io/platform/current/clients/confluent-kafka-python/html/index.html)
+
+## 3. Data Pipeline
+
+## 3.1 Batch
 
 *In progress . . .*

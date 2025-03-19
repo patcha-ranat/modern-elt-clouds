@@ -1,4 +1,4 @@
-# Modern ELT Pipeline with Clouds
+# Modern Data Pipeline with Clouds
 
 *Patcharanat P.*
 
@@ -10,6 +10,14 @@
     - 2.2 [Cloud Authentication](#22-cloud-authentication)
     - 2.3 [Initiating Cloud Resources](#23-initiating-cloud-resources)
     - 2.4 [Initiating Data](#24-initiating-data)
+3. [Data Pipelines](#3-data-pipelines)
+    - 3.1 [Batch](#31-batch)
+        - 3.1.1 [Data Load Tool (dlt/dlthub)](#311-data-load-tool-dltdlthub)
+        - 3.1.2 [Pyspark Ingestion Framework](#312-pyspark-ingestion-framework)
+        - 3.1.3 [Polars Ingestion Framework](#313-polars-ingestion-framework)
+        - 3.1.4 [Batch Performance Comparison](#314-batch-performance-comparison)
+    - 3.2 [Streaming](#32-streaming)
+        - 3.2.1 [ksqlDB](#321-ksqldb)
 
 ## 1. Pre-requisites
 
@@ -25,6 +33,13 @@
     # TODO: Get MongoDB Connection URI From Web UI
     MONGO_URI="mongodb+srv://....mongodb.net"
     GCP__PROJECT="your-project-name"
+    ```
+    ```bash
+    # ./.docker/.env
+    # TODO: Set AWS Profile
+    AIRFLOW_PROJ_DIR="../.airflow"
+    AIRFLOW_UID="50000"
+    AWS_PROFILE="<aws-sso-profile>"
     ```
     ```bash
     # .terraform/aws/terraform.tfvars
@@ -46,18 +61,22 @@ make start
 
 # make stop
 ```
+
 Explanation
-- I modified template to use Kafka with redpanda console (conduktor removed)
+
+- I modified docker compose template by conduktor to use Kafka with redpanda console (conduktor removed)
 - At First, if we use original template from Airflow and redpanda (or conduktor), we will not be able to open redpanda console, due to duplicated port exposed, so changing port for redpanda is an only option.
     - Console
         - airflow WebUI: http://localhost:8080
         - kafka (redpanda) console: http://localhost:8085
-- Redpanda implicitly use port 8080 to expose, can be changed by setting a specific environment variable for redpanda service, but it's unnecessary, since we can change port to be exposed in higher level in docker-compose.
+- Redpanda implicitly use port 8080 to expose, can be changed by setting a specific environment variable, but it's unnecessary, because we can change port to be exposed at higher level in docker-compose.
 
 *Disclaimer*
+
 - Using Docker Compose is not appropriate for production environment.
 
 References
+
 - Airflow Docker Compose Template
     - [Official Airflow Docker Compose Template - Apache Airflow](https://airflow.apache.org/docs/apache-airflow/2.10.5/docker-compose.yaml)
 - Kafka Docker Compose Template
@@ -84,10 +103,12 @@ gcloud auth application-default login --impersonate-service-account <service-acc
 ```
 
 Explanation
+
 - For me, AWS SSO method is like ADC method in GCP by using account A to act as another account B to grant permissions and be able to interact with cloud resources with permissions of account B.
 - Both AWS SSO and GCP ADC are only recommended for local development and make long-lived credentials lesser to be concerned by utilizing global credentials in a local machine with short-lived credentials concept.
 
 References
+
 - Amazon Authentication
     - [Configuration and credential file settings in the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)
 - GCP Authentication Detail from Another Project
@@ -111,6 +132,7 @@ terraform destroy
 ```
 
 References
+
 - Terraform AWS
     - [AWS Provider (Authentication related) for SSO, please refer to shared credentials - Terraform](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
     - [Terraform DynamoDB resource - Terraform ](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/dynamodb_table)
@@ -119,7 +141,7 @@ References
 
 ### 2.4 Initiating Data
 
-In this project, we will load raw data from Kaggle with a custom script: [kaggle_wrapper.sh](./tools/data_init/scripts/kaggle_wrapper.sh). Then, we will convert data from csv to json lines with python script: [converter_main.py](./tools/data_init/converter_main.py). Then we will use this converted data to load to multiple sources to mock up data sources for ELT process, such as MongoDB, Firestore, DynamoDB for NoSQL Database, and Kafka for streaming.
+In this project, we will download raw data from Kaggle with a custom script: [kaggle_wrapper.sh](./tools/data_init/scripts/kaggle_wrapper.sh). Then, we will convert it from csv to json lines with python script: [converter_main.py](./tools/data_init/converter_main.py). Then, we will use this converted data to load to multiple sources to mock up data sources for ELT process, such as MongoDB, Firestore, DynamoDB for NoSQL Database, and Kafka for streaming.
 
 ```bash
 make venv
@@ -136,6 +158,7 @@ python tools/data_init/converter_main.py
 Then please refer to [input_example.sh](./tools/data_init/scripts/input_example.sh) for initiating loading data to different targets.
 
 References
+
 - Firestore Python API
     - [Add and update data - GCP](https://cloud.google.com/firestore/docs/manage-data/add-data#pythonasync_6)
     - [Delete documents and fields - GCP](https://cloud.google.com/firestore/docs/manage-data/delete-data)
@@ -149,8 +172,36 @@ References
     - [Example of JSON producer - GitHub](https://github.com/confluentinc/confluent-kafka-python/blob/master/examples/json_producer.py)
     - [confluent-kafka api docs - docs.io](https://docs.confluent.io/platform/current/clients/confluent-kafka-python/html/index.html)
 
-## 3. Data Pipeline
+## 3. Data Pipelines
+
+*Inserted Overview Picture*
 
 ## 3.1 Batch
+
+### 3.1.1 Data Load Tool (dlt/dlthub)
+
+*dlt* is a modern tool for ELT/ETL data pipeline. It can either extract from data sources and load to various target destinations as a json lines file, or as structured format with schema pre-defined.
+
+References
+
+- dlt
+    - [Example of using dlt with Airflow - dlthub](https://dlthub.com/docs/walkthroughs/deploy-a-pipeline/deploy-with-airflow-composer)
+    - [How to use dlt with MongoDB - dlthub](https://dlthub.com/docs/dlt-ecosystem/verified-sources/mongodb)
+    - [How to supply credentials to dlt pipeline - dlthub](https://dlthub.com/docs/general-usage/credentials/setup#examples)
+    - [Advanced detail of managing credentials in dlt & Example of setting credentials in dlt-Airflow](https://dlthub.com/docs/general-usage/credentials/advanced#write-configs-and-secrets-in-code)
+    - [dlt with Cloud storage and filesystem Configuration - dlthub](https://dlthub.com/docs/general-usage/credentials/advanced#write-configs-and-secrets-in-code)
+- Airflow
+    - [Airflow BaseHook get_connection - Apache Airflow](https://airflow.apache.org/docs/apache-airflow/2.1.2/_api/airflow/hooks/base/index.html#airflow.hooks.base.BaseHook.get_connection)
+    - [Managing Airflow Connections with BaseHook - Stack Overflow](https://stackoverflow.com/a/45305477)
+
+### 3.1.2 Pyspark Ingestion Framework
+
+### 3.1.3 Polars Ingestion Framework
+
+### 3.1.4 Batch Performance Comparison
+
+## 3.2 Streaming
+
+### 3.2.1 ksqlDB
 
 *In progress . . .*

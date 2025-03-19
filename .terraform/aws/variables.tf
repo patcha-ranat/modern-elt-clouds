@@ -35,6 +35,12 @@ variable "persist_bucket_name" {
   default = "kde-persist"
 }
 
+variable "artifact_bucket_name" {
+  type        = string
+  description = "storing code, config, and etc."
+  default     = "kde-artifact"
+}
+
 # DynamoDB (NoSQL)
 
 variable "dynamodb_billing_mode" {

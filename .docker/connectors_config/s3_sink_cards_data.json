@@ -1,0 +1,26 @@
+{
+    "name": "s3-sink-kde",
+    "config": {
+        "connector.class": "io.confluent.connect.s3.S3SinkConnector",
+        "format.class": "io.confluent.connect.s3.format.json.JsonFormat",
+        "flush.size": 3,
+        "retry.backoff.ms": 5000,
+        "schema.compatibility": "NONE",
+        "s3.bucket.name": "kde-landing",
+        "s3.region": "ap-southeast-1",
+        "s3.part.size": 5242880,
+        "s3.credentials.provider.class": "com.amazonaws.auth.DefaultAWSCredentialsProviderChain",
+        "storage.class": "io.confluent.connect.s3.storage.S3Storage",
+        "topics.dir": "hello/world",
+        "store.url": "topics",
+        "directory.delim": "/",
+        "partitioner.class": "io.confluent.connect.storage.partitioner.DefaultPartitioner",
+        "partition.field.name": "",
+        "partition.duration.ms": 10000,
+        "path.format": "'year'=YYYY/'month'=MM/'day'=dd/'hour'=HH",
+        "timezone": "UTC",
+
+        "tasks.max": "1",
+        "topics": "cards_data"
+    }
+}

@@ -41,6 +41,15 @@ resource "aws_s3_bucket" "persist_bucket" {
   }
 }
 
+resource "aws_s3_bucket" "artifact_bucket" {
+  bucket        = var.artifact_bucket_name
+  force_destroy = true
+
+  tags = {
+    Environment = var.env
+  }
+}
+
 # DynamoDB
 
 resource "aws_dynamodb_table" "cards_data" {

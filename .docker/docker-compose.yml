@@ -34,7 +34,7 @@ x-airflow-common:
   # image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.10.3}
   build:
     context: ..
-    dockerfile: .docker/Dockerfile
+    dockerfile: .docker/airflow.Dockerfile
   entrypoint: /opt/airflow/entrypoint.sh
   env_file:
     - ../.env
@@ -90,6 +90,7 @@ services:
 
   airflow-webserver:
     <<: *airflow-common
+    container_name: airflow-webserver
     command: webserver
     ports:
       - "8080:8080"
@@ -107,6 +108,7 @@ services:
 
   airflow-scheduler:
     <<: *airflow-common
+    container_name: airflow-scheduler
     command: scheduler
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
@@ -250,7 +252,10 @@ services:
       KAFKA_REST_SCHEMA_REGISTRY_URL: "http://kafka-schema-registry:8081"
 
   kafka-connect:
-    image: confluentinc/cp-kafka-connect:7.3.2
+    # image: confluentinc/cp-kafka-connect:7.3.2
+    build:
+      context: .
+      dockerfile: kafka-connect.Dockerfile
     hostname: kafka-connect
     container_name: kafka-connect
     ports:
@@ -275,8 +280,15 @@ services:
       CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_PLUGIN_PATH: '/usr/share/java,/etc/kafka-connect/jars,/usr/share/confluent-hub-components'
+      # Custom Environment Variable
+      AWS_PROFILE: ${AWS_PROFILE}
     volumes:
+      # in case you have your own custom plugin
       - ./connectors:/etc/kafka-connect/jars/
+      # mount config
+      - ./connectors_config:/home/appuser/connectors_config
+      # authentication
+      - ~/.aws:/home/appuser/.aws:ro
     depends_on:
       - zookeeper
       - kafka-broker

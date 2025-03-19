@@ -1,0 +1,24 @@
+{
+    "dataset": {
+        "source": "bronze",
+        "target": "silver"
+    },
+    "table_name": "cards_data",
+    "columns": [
+        {"target_column": "surrogate_key", "source_column": "id", "column_type": "int", "nullable": true},
+        {"target_column": "client_id", "source_column": "client_id", "column_type": "str", "nullable": false},
+        {"target_column": "card_brand", "source_column": "card_brand", "column_type": "str", "nullable": false},
+        {"target_column": "card_type", "source_column": "card_type", "column_type": "str", "nullable": false},
+        {"target_column": "card_number", "source_column": "card_number", "column_type": "int", "nullable": false},
+        {"target_column": "card_expire", "source_column": "expires", "column_type": "str", "nullable": false},
+        {"target_column": "card_cvv", "source_column": "cvv", "column_type": "int", "nullable": false},
+        {"target_column": "has_chip", "source_column": "has_chip", "column_type": "bool", "nullable": false},
+        {"target_column": "num_cards_issued", "source_column": "num_cards_issued", "column_type": "int", "nullable": false},
+        {"target_column": "credit_limit", "source_column": "credit_limit", "column_type": "str", "nullable": false},
+        {"target_column": "acct_open_date", "source_column": "acct_open_date", "column_type": "str", "nullable": false},
+        {"target_column": "year_pin_last_changed", "source_column": "year_pin_last_changed", "column_type": "str", "nullable": false},
+        {"target_column": "card_on_dark_web", "source_column": "card_on_dark_web", "column_type": "bool", "nullable": false}
+    ],
+    "primary_key": ["client_id", "card_number"],
+    "partition_column": ["card_brand", "card_type"]
+}

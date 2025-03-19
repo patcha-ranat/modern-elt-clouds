@@ -1,0 +1,15 @@
+{
+    "dataset": {
+        "source": "",
+        "target": ""
+    },
+    "table_name": "",
+    "columns": [
+        {"target_column": "", "source_column": "", "column_type": "", "nullable": false},
+        {"target_column": "", "source_column": "", "column_type": "", "nullable": false},
+        {"target_column": "", "source_column": "", "column_type": "", "nullable": false}
+    ],
+    "primary_key": ["", ""],
+    "partition_column": ["", ""],
+    "array_column": [""]
+}

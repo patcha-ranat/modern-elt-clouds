@@ -160,7 +160,7 @@ python ./tools/data_init/loader_main.py \
     --load-type streaming \
     --destination kafka \
     --bootstrap-server localhost:9092 \
-    --topic cards_data \
+    --topic cards-data \
     --data-path data/json/cards_data.json \
     --rows 10 \
     --streaming-interval 0.5

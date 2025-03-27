@@ -280,8 +280,10 @@ services:
       CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_PLUGIN_PATH: '/usr/share/java,/etc/kafka-connect/jars,/usr/share/confluent-hub-components'
-      # Custom Environment Variable
-      AWS_PROFILE: ${AWS_PROFILE}
+      # Custom Environment Variable for Authentication
+      # AWS_PROFILE: ${AWS_PROFILE}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
     volumes:
       # in case you have your own custom plugin
       - ./connectors:/etc/kafka-connect/jars/

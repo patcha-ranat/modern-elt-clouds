@@ -7,12 +7,12 @@
         "retry.backoff.ms": 5000,
         "schema.compatibility": "NONE",
         "s3.bucket.name": "kde-landing",
-        "s3.region": "ap-southeast-1",
+        "s3.region": "ap-southeast-7",
         "s3.part.size": 5242880,
         "s3.credentials.provider.class": "com.amazonaws.auth.DefaultAWSCredentialsProviderChain",
         "storage.class": "io.confluent.connect.s3.storage.S3Storage",
         "topics.dir": "hello/world",
-        "store.url": "topics",
+        "store.url": "https://s3.ap-southeast-7.amazonaws.com",
         "directory.delim": "/",
         "partitioner.class": "io.confluent.connect.storage.partitioner.DefaultPartitioner",
         "partition.field.name": "",
@@ -21,6 +21,6 @@
         "timezone": "UTC",
 
         "tasks.max": "1",
-        "topics": "cards_data"
+        "topics": "cards-data"
     }
 }

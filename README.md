@@ -2,6 +2,21 @@
 
 *Patcharanat P.*
 
+*Project is paused, and not likely to progress*
+
+## Overview
+
+This project emphasized setting up environment for Data Engineering pipelines, including:
+1. Initializing Airflow and Kafka on local environment with docker compose.
+2. Enabling cloud resources in GCP and AWS for testing.
+3. Implementing Data Loading Module for data initialization.
+
+What expected from this project is technical detail on how to send data for batch and streaming type with different APIs.
+
+**If you're non-technical person or just want concepts of the project, please check [non_technical_guide.md](./docs/non_technical_guide.md) instead of this documnetation.**
+
+![modern_pipeline_with_cloud_overview](./docs/pic/modern_pipeline_with_cloud_overview.png)
+
 ## Table of Contents
 
 1. [Pre-requisites](#1-prerequisites)
@@ -14,10 +29,7 @@
     - 3.1 [Batch](#31-batch)
         - 3.1.1 [Data Load Tool (dlt/dlthub)](#311-data-load-tool-dltdlthub)
         - 3.1.2 [Pyspark Ingestion Framework](#312-pyspark-ingestion-framework)
-        - 3.1.3 [Polars Ingestion Framework](#313-polars-ingestion-framework)
-        - 3.1.4 [Batch Performance Comparison](#314-batch-performance-comparison)
     - 3.2 [Streaming](#32-streaming)
-        - 3.2.1 [ksqlDB](#321-ksqldb)
 
 ## 1. Pre-requisites
 
@@ -171,16 +183,16 @@ References
     - [confluent-kafka-python - GitHub](https://github.com/confluentinc/confluent-kafka-python/tree/master)
     - [Example of JSON producer - GitHub](https://github.com/confluentinc/confluent-kafka-python/blob/master/examples/json_producer.py)
     - [confluent-kafka api docs - docs.io](https://docs.confluent.io/platform/current/clients/confluent-kafka-python/html/index.html)
+- [Python Logging Setting up](https://stackoverflow.com/a/11582124)
+- [Python Logging Formatters](https://docs.python.org/3/howto/logging.html#formatters)
 
 ## 3. Data Pipelines
 
-*Inserted Overview Picture*
-
-## 3.1 Batch
-
-### 3.1.1 Data Load Tool (dlt/dlthub)
+## 3.1 Batch - Data Load Tool (dlt/dlthub)
 
 *dlt* is a modern tool for ELT/ETL data pipeline. It can either extract from data sources and load to various target destinations as a json lines file, or as structured format with schema pre-defined.
+
+*Please review [concept.md](./docs/concept.md) for more detail*
 
 References
 
@@ -194,14 +206,19 @@ References
     - [Airflow BaseHook get_connection - Apache Airflow](https://airflow.apache.org/docs/apache-airflow/2.1.2/_api/airflow/hooks/base/index.html#airflow.hooks.base.BaseHook.get_connection)
     - [Managing Airflow Connections with BaseHook - Stack Overflow](https://stackoverflow.com/a/45305477)
 
-### 3.1.2 Pyspark Ingestion Framework
-
-### 3.1.3 Polars Ingestion Framework
-
-### 3.1.4 Batch Performance Comparison
-
 ## 3.2 Streaming
 
-### 3.2.1 ksqlDB
+![modern_pipeline_kafka_architecture](./docs/pic/modern_pipeline_kafka_architecture.png)
 
-*In progress . . .*
+References
+
+- [How to set connector config & kafka related service - Medium](https://poonsht.medium.com/https-poonsht-medium-com-kafka-connect-cdc-mongodb-elasticsearch-demo-part-19e64a01a5b9)
+- [Kafka Amazon S3 Sink Connector](https://www.confluent.io/hub/confluentinc/kafka-connect-s3)
+    - [Amazon S3 Sink Connector Documentation - Confluent](https://docs.confluent.io/kafka-connectors/s3-sink/current/overview.html)
+    - [Amazon S3 Sink Connector Configiuration Reference - Confluent](https://docs.confluent.io/kafka-connectors/s3-sink/current/configuration_options.html#s3)
+    - [How to authenticate with AWS with Environment Variable - AWS](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html)
+- [How to deploy kafka connector with config file - Stackoverflow](https://stackoverflow.com/a/47101871)
+- [Unknow Magic byte! Trobleshooting: related to Using Different Serializer - GitHub](https://github.com/confluentinc/kafka-connect-elasticsearch/issues/424)
+
+
+*Please review [concept.md](./docs/concept.md) for more detail*

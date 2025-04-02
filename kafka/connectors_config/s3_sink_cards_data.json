@@ -5,22 +5,29 @@
         "format.class": "io.confluent.connect.s3.format.json.JsonFormat",
         "flush.size": 3,
         "retry.backoff.ms": 5000,
+
         "schema.compatibility": "NONE",
+        
         "s3.bucket.name": "kde-landing",
         "s3.region": "ap-southeast-7",
-        "s3.part.size": 5242880,
+        "s3.part.size": 26214400,
         "s3.credentials.provider.class": "com.amazonaws.auth.DefaultAWSCredentialsProviderChain",
         "storage.class": "io.confluent.connect.s3.storage.S3Storage",
-        "topics.dir": "hello/world",
+        
+        "topics.dir": "kafka/some-sub-dir",
         "store.url": "https://s3.ap-southeast-7.amazonaws.com",
         "directory.delim": "/",
+
         "partitioner.class": "io.confluent.connect.storage.partitioner.DefaultPartitioner",
-        "partition.field.name": "",
+        "partition.field.name": "id",
         "partition.duration.ms": 10000,
         "path.format": "'year'=YYYY/'month'=MM/'day'=dd/'hour'=HH",
         "timezone": "UTC",
 
         "tasks.max": "1",
-        "topics": "cards-data"
+        "topics": "cards-data",
+        "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+        "value.converter": "io.confluent.connect.json.JsonSchemaConverter",
+        "value.converter.schema.registry.url": "http://kafka-schema-registry:8081"
     }
 }

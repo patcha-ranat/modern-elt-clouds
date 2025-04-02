@@ -2,7 +2,6 @@
 
 *Patcharanat P.*
 
-*Project is paused, and not likely to progress*
 
 ## Overview
 
@@ -13,7 +12,7 @@ This project emphasized setting up environment for Data Engineering pipelines, i
 
 What expected from this project is technical detail on how to send data for batch and streaming type with different APIs.
 
-**If you're non-technical person or just want concepts of the project, please check [non_technical_guide.md](./docs/non_technical_guide.md) instead of this documnetation.**
+**If you're non-technical person or just want concepts of the project, please check [concept.md](./docs/concept.md) instead of this main documnetation.**
 
 ![modern_pipeline_with_cloud_overview](./docs/pic/modern_pipeline_with_cloud_overview.png)
 
@@ -26,10 +25,8 @@ What expected from this project is technical detail on how to send data for batc
     - 2.3 [Initiating Cloud Resources](#23-initiating-cloud-resources)
     - 2.4 [Initiating Data](#24-initiating-data)
 3. [Data Pipelines](#3-data-pipelines)
-    - 3.1 [Batch](#31-batch)
-        - 3.1.1 [Data Load Tool (dlt/dlthub)](#311-data-load-tool-dltdlthub)
-        - 3.1.2 [Pyspark Ingestion Framework](#312-pyspark-ingestion-framework)
-    - 3.2 [Streaming](#32-streaming)
+    - 3.1 [3.1 Batch - Data Load Tool (dlt/dlthub)](#31-batch---data-load-tool-dltdlthub)
+    - 3.2 [Streaming - Kafka](#32-streaming---kafka)
 
 ## 1. Pre-requisites
 
@@ -51,7 +48,10 @@ What expected from this project is technical detail on how to send data for batc
     # TODO: Set AWS Profile
     AIRFLOW_PROJ_DIR="../.airflow"
     AIRFLOW_UID="50000"
+
     AWS_PROFILE="<aws-sso-profile>"
+    AWS_ACCESS_KEY_ID="<your AWS Access Key ID with S3 Permission>"
+    AWS_SECRET_ACCESS_KEY="<your AWS Secret Key with S3 Permission>"
     ```
     ```bash
     # .terraform/aws/terraform.tfvars
@@ -192,7 +192,9 @@ References
 
 *dlt* is a modern tool for ELT/ETL data pipeline. It can either extract from data sources and load to various target destinations as a json lines file, or as structured format with schema pre-defined.
 
-*Please review [concept.md](./docs/concept.md) for more detail*
+*Please review [concept.md - Detail on Batch Pipeline - dlthub](./docs/concept.md#4-detail-on-batch-pipeline-dlthub) for more detail.*
+
+Related file is [finance_mongo_s3.py](./.airflow/dags/ingest/mongodb/finance_mongo_s3.py) integrating dlt library with Airflow DAG.
 
 References
 
@@ -206,19 +208,105 @@ References
     - [Airflow BaseHook get_connection - Apache Airflow](https://airflow.apache.org/docs/apache-airflow/2.1.2/_api/airflow/hooks/base/index.html#airflow.hooks.base.BaseHook.get_connection)
     - [Managing Airflow Connections with BaseHook - Stack Overflow](https://stackoverflow.com/a/45305477)
 
-## 3.2 Streaming
+## 3.2 Streaming - Kafka
 
 ![modern_pipeline_kafka_architecture](./docs/pic/modern_pipeline_kafka_architecture.png)
 
+I recommend to read concept of Kafka-connect from this project first at [here](./docs/concept.md#5-detail-on-streaming-pipeline-kafka-connect). What we're gonna do are the following steps:
+1. Spin up docker compose to initialize these sessions:
+    - **Kafka Broker**: to store data in a topic
+    - **Kafka REST proxy**: to allow us work with Kafka via REST API
+    - **Kafka Schema registry**: to ensure what we send to the topic with JSON pre-defined schema
+    - **Kafka UI (redpanda)**: to monitor streaming processes 
+    - **Kafka Connect**: to sink data from the topic to destination (S3)
+    ```bash
+    # workdir: project root directory
+    
+    make start
+    # docker compose -f .docker/docker-compose.yml up --build
+    ```
+2. Use [test_producer.py](./kafka/test_producer.py) to send data to a topic **utilizing schema registry and serializer properly**. (use the command in [test_producer.sh](./kafka/test_producer.sh) to execute py script)
+    ```bash
+    # workdir: ./kafka
+
+    python test_producer.py \
+        --bootstrap-servers localhost:9092 \
+        --schema-registry  http://localhost:8081 \
+        --topic cards-data \
+        --source-path ../data/json/cards_data.json \
+        --schema-path ./schema/json/schema_cards_data.json \
+        --rows 50 
+    ```
+    - p.s. Data Loader haven't implement schema registry and serializer properly yet.
+    - The data will use a [schema file](./kafka/schema/json/schema_cards_data.json) for schema registration in schema registry
+3. Make sure we mounted/exported needed long-lived credentials for Kafka connect (because it doesn't support SSO method)
+    - If you check [docker compose file](./.docker/docker-compose.yml), you will see in kafka-connect service, I exported environment variables within the continer to authenticate with AWS that's gonna use secret variables in `.env` located in the same directory with docker compose file which is hidden from GitHub.
+    - Can be checked by getting in to kafka-connect container and check exported environment variables
+    ```bash
+    # workdir: anywhere
+    docker exec -it kafka-connect bash
+
+    env | grep AWS_
+    # printenv | grep AWS_
+    # AWS ACCESS ID and Secret Key must be shown
+    ```
+4. Deploy Kafka Connector with REST API (can be executed inside or outside of the kafka connect container) using pre-defined connector JSON configuration: [s3_sink_cards_data.json](./kafka/connectors_config/s3_sink_cards_data.json).
+    ```bash
+    # kafka connect
+
+    # deploy kafka connector
+    curl -X POST -H "Content-Type: application/json" --data @connectors_config/s3_sink_cards_data.json http://localhost:8083/connectors
+
+    # force check connector's status
+    curl -s http://localhost:8083/connectors/s3-sink-kde/status
+
+    # delete deployed kafka connector
+    curl -X DELETE http://localhost:8083/connectors/s3-sink-kde
+
+    # Kafka Schema Registry
+    # delete registered schema from schema registry if needed
+    curl -X DELETE http://localhost:8081/subjects/cards-data-value
+    ```
+5. Check Connector Status & Check Result in S3
+
+Results:
+- Data is sent to a topics name: `cards-data`
+    ![kafka_data](./docs/pic/kafka_data.png)
+- Schema Registry is used by the producer as [the script](./kafka/test_producer.py) specify it to.
+    ![kafka_schema_registry](./docs/pic/kafka_schema_registry.png)
+- Kafka conenctor is deployed and working as expected. You can see in kafka connect related topics which is created automatically.
+    ![kafka_connect_working](./docs/pic/kafka_connect_working.png)
+- Data is sunk to S3, successfully send data from Kafka topic to the data lake.
+    ![kafka_sink_output](./docs/pic/kafka_sink_output.png)
+
+### Troubleshoots
+- All the options available in S3 Sink Connector is not well-documented in [Official S3 Connector Configuration Reference](https://docs.confluent.io/kafka-connectors/s3-sink/current/configuration_options.html#s3), you have to find it more in Example in main page and some other pages about Converter and Serializer if you need it.
+- We have to use the same type of converter and serializer for each key and value
+    - For example:
+        - For key, we use `StringSerializer`, then in the connector's configuration we have to specify `"key.converter": "org.apache.kafka.connect.storage.StringConverter"`
+        - For value (json data for each record), we use `JsonSerializer`, then in the connector's configuration, we have to use specify `"value.converter": "io.confluent.connect.json.JsonSchemaConverter"`
+        - and if you want to use Schema Registry, you have to set `"value.converter.schema.registry.url": "http://kafka-schema-registry:8081"`.
+        - However, all the mentioned options are not shown in reference page. I took some time to figure it out myself in other pages of documentation about kafka connect concept.
+- We can debug or see if it's worked or not by checking the status of the deployed connector through REST API command:
+    ```bash
+    # force check connector's status
+    curl -s http://localhost:8083/connectors/s3-sink-kde/status
+    ```
+
 References
 
-- [How to set connector config & kafka related service - Medium](https://poonsht.medium.com/https-poonsht-medium-com-kafka-connect-cdc-mongodb-elasticsearch-demo-part-19e64a01a5b9)
+- [Kafka Connect Concept - Official Confluent](https://docs.confluent.io/platform/7.9/connect/index.html#converters)
+- [How to set connector config & kafka related service (in Thai language) - Medium](https://poonsht.medium.com/https-poonsht-medium-com-kafka-connect-cdc-mongodb-elasticsearch-demo-part-19e64a01a5b9)
 - [Kafka Amazon S3 Sink Connector](https://www.confluent.io/hub/confluentinc/kafka-connect-s3)
     - [Amazon S3 Sink Connector Documentation - Confluent](https://docs.confluent.io/kafka-connectors/s3-sink/current/overview.html)
-    - [Amazon S3 Sink Connector Configiuration Reference - Confluent](https://docs.confluent.io/kafka-connectors/s3-sink/current/configuration_options.html#s3)
+    - [Amazon S3 Sink Connector Configiuration Reference (Not cover all available options) - Confluent](https://docs.confluent.io/kafka-connectors/s3-sink/current/configuration_options.html#s3)
     - [How to authenticate with AWS with Environment Variable - AWS](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html)
-- [How to deploy kafka connector with config file - Stackoverflow](https://stackoverflow.com/a/47101871)
-- [Unknow Magic byte! Trobleshooting: related to Using Different Serializer - GitHub](https://github.com/confluentinc/kafka-connect-elasticsearch/issues/424)
+- [How to deploy kafka connector with a config file instead of json string in the command - Stackoverflow](https://stackoverflow.com/a/47101871)
+- [Unknown Magic byte! Trobleshooting: related to Using Different Serializer - GitHub](https://github.com/confluentinc/kafka-connect-elasticsearch/issues/424)
+    - [Available Convertor (paired with producer Serializer) and Example how to use it](https://docs.confluent.io/platform/current/connect/userguide.html#configuring-key-and-value-converters)
+- [How to delete registered schema in schema registry](https://docs.confluent.io/platform/current/schema-registry/schema-deletion-guidelines.html)
 
 
 *Please review [concept.md](./docs/concept.md) for more detail*
+
+---

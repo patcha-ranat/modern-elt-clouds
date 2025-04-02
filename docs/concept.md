@@ -2,8 +2,6 @@
 
 *Patcharanat P.*
 
-*Project is paused, and not likely to progress*
-
 ## Overview
 
 This project emphasized setting up environment for Data Engineering pipelines, including:
@@ -48,12 +46,12 @@ Anyway, each of them have a lot of detail and configuration to understand in ord
         - Kafka Broker is a core component that acted as pipeline, storing streaming data with scalable approach, and also depending on how producer and consumer is implemented.
         - A topic acted as a table but for streaming data, represented as json, avro, or parquet depending on usecases and requirements.
         - Partition enable Kafka to work paralelly by consumers. Setting this properly and not properly such as partitioner and number of partition would relate to performance issues.
-        - Schema Registry is a tedious component that requires you to setup in order to send data with integrity by data contract. I skipped this component for simplicity.
-        - Kafka Rest proxy allow you to communicate with kafka with RestAPI to manage things in Kafka.
+        - Schema Registry is a tedious component that requires you to setup in order to send data with integrity by data contract. Optionally, the code would be more mature if we implement python pydantic model to ensure validation of all components.
+        - Kafka Rest proxy allow you to communicate to kafka with RestAPI which allow us to manage Kafka components easier.
         - redpanda or conduktor is interface service to allow user monitor Kafka streaming via web UI console.
         - Kafka connect is simply pre-built producer-consumer that communities supported to easily connect Kafka with well-known sources and destinations. Kafka Connect is the first solution to look for before implementing consumer and producer yourself.
         - Kafka connect just requires us to configure connector configuration and *deploy* with a single RestAPI command to operate.
-        - It's a good practice to version kafka connector configuration in code.
+        - It's a good practice to version kafka connector configuration as code.
     - Setting Kafka environment is not an easy task for an individual. It require a lot of configuration and comprehension in architecture to setup fault-tolerance successfully.
     - To setup Kafka in local with docker compose I found the following issues that we should concern:
         - Exposing port for kafka services, particulary if we want to change conduktor console with redpanda.
@@ -110,24 +108,24 @@ We can know how we should write Terraform script by exploring official Terraform
 
 *dlt* is a modern tool for ELT/ETL data pipeline. It can either extract from data sources and load to various target destinations as a json lines file, or as structured format with schema pre-defined. It has official supported pre-built connectors that make us easier to enable ELT/ETL process.
 
-In my opinion, dlt is useful when we have multiple data sources and destinations that could exhaust us to implement and maintain every single of connectors, but it also don't have much workload of data to ingest/load. However, it require a steep learning curve due to its highly customizable. And because of this, it make the tool itself become complex and overhead to manage things around, like importing pre-built pipeline, supplying credentials, connections, and providing configuration.
+In my opinion, dlt is useful when we have multiple data sources and destinations that could exhaust us to implement and maintain every single of connectors ourselves, but it also don't have much workload of data to ingest/load. However, it require a steep learning curve due to its highly customizable. And because of this, it make the tool itself become complex and overhead to manage things around, like importing pre-built pipeline, supplying credentials, connections, and providing configuration.
 
 Moreover, if we have our own usecase, we can adjust its advance features to match our needs such as setting output to be compressed or not, making the tasks paralellized executed, leveraging built-in transformation, etc.
 
-Since the tool could cover a lot of usecases, some usecase that we might be interested might not well-documented in official documentation and provided with so few example. And sometimes, error raising is not straightforward which make it harder to debug.
+Since the tool could cover a lot of usecases, some usecases that we might be interested might not well-documented in official documentation and provided with only a few examples. And sometimes, error throwing is not straightforward which make it harder to debug.
 
-Specifically, supplying credentials for dlt provide many alternative to achieve, but I avoid recommended way of using `.toml`, because I don't want to mess up my dags directory just to unnecessarily directly supply configuration to dlt, since we already have airflow connections and variables to do that for us. And because of this, we have to work around by using `dlt.config[""]` or `dlt.secrets[""]` in some specific order in python code to make things work. We have to initialize a dlt pipline first then set configuration and secrets after, then *add run* in the last, unless it don't work at all.
+Specifically, supplying credentials for dlt provide many alternative to achieve, but I avoid the recommended way of using `.toml`, because I don't want to mess up my dags directory just to unnecessarily directly supply configuration to dlt pipeline, since we already have airflow connections and variables to do that for us. And because of this, we have to work around by using `dlt.config[""]` or `dlt.secrets[""]` in specific order in python code to make things work. We have to initialize a dlt pipline first then set configuration and secrets after, then *add run* in the last, unless it don't work at all.
 
-To me dlt is still far from a mature tool due to its low maintainability and a steep learning curve for tool adoption, which may not worth for big organizations that also have *big data* on their hands. There's still more common tools, which eveyone knows the concept and can use, easier for onboarding, and also be able to handle larger volume of data compared with dlt.
+To me dlt is still far from a mature tool due to its low maintainability and a steep learning curve for tool adoption, which may not worth for big organizations that also have *big data* on their hands. There's still more common tools, which eveyone knows the concept and be able use with ease, easier for onboarding, and also be able to handle larger volume of data compared with dlt capability.
 
 ## 5. Detail on Streaming Pipeline (Kafka Connect)
 
 As previously mentioned in topic [(1)](#1-preparing-airflow-and-kafka-on-local-environment-with-docker-compose) Kafka connect should be the first option to look for when we implement streaming data pipeline, so we don't have to build everything from scratch. Anyway, this is some important things to note:
-- Kafka Connect is a service that we can pack dependencies such as connector to use during runtime.
-- Conenctors require us to create configuration file (json format) that's templated by official provider, and deploy to initialize its process.
+- Kafka Connect is a service that we can pack dependencies such as pre-built connector (pre-built producer or consumer) to use during runtime.
+- Conenctors require us to create configuration file (in json format) that's templated by official provider, and deploy it to initialize its process.
 - Connector must have the same serializer with producer that serialize the data.
-- Connector also requires its service container to have sufficient permission and authentication in order to connect the connector with destination.
+- Connector also requires its service container to have sufficient permission in order to authenticate the connector with destination.
 
-For Kafka, it still have many left to explore that I haven't demonstrate in this project yet such as using schema-registry, partitioner, setting number of partition, configuring for fault-tolerance feature, utilzing offset, and paralellization. It require a lot of effort to learn all of it and not suit for a individual large-scale project like this.
+For Kafka, it still have many left to explore that I haven't demonstrate in this project yet such as modifying partitioner, setting number of partition, configuring for fault-tolerance, utilzing offset, and paralellization. It require a lot of effort to learn all of it and not suit for a individual large-scale project like this.
 
 ---

@@ -1,0 +1,62 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://json-schema.org/draft/2020-12/schema",
+    "title": "cards_data",
+    "description": "temp description",
+    "type": "object",
+    "properties": {
+        "id": {
+            "description": "temp description",
+            "type": "integer"
+        },
+        "client_id": {
+            "description": "temp description",
+            "type": "integer"
+        },
+        "card_brand": {
+            "description": "temp description",
+            "type": "string"
+        },
+        "card_type": {
+            "description": "temp description",
+            "type": "string"
+        },
+        "card_number": {
+            "description": "temp description",
+            "type": "integer"
+        },
+        "expires": {
+            "description": "temp description",
+            "type": "string"
+        },
+        "cvv": {
+            "description": "temp description",
+            "type": "integer"
+        },
+        "has_chip": {
+            "description": "temp description",
+            "type": "string"
+        },
+        "num_cards_issued": {
+            "description": "temp description",
+            "type": "integer"
+        },
+        "credit_limit": {
+            "description": "temp description",
+            "type": "string"
+        },
+        "acct_open_date": {
+            "description": "temp description",
+            "type": "string"
+        },
+        "year_pin_last_changed": {
+            "description": "temp description",
+            "type": "integer"
+        },
+        "card_on_dark_web": {
+            "description": "temp description",
+            "type": "string"
+        }
+    },
+    "required": [ "id" ]
+}

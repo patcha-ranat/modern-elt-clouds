@@ -288,7 +288,7 @@ services:
       # in case you have your own custom plugin
       - ./connectors:/etc/kafka-connect/jars/
       # mount config
-      - ./connectors_config:/home/appuser/connectors_config
+      - ../kafka/connectors_config:/home/appuser/connectors_config
       # authentication
       - ~/.aws:/home/appuser/.aws:ro
     depends_on:
